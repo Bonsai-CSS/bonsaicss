@@ -17,9 +17,12 @@
     "playground:build": "pnpm --filter @bonsaicss/bonsailab build",
     "playground:preview": "pnpm --filter @bonsaicss/bonsailab preview",
     "prettier": "prettier --write --parser typescript '**/*.ts'",
-    "format": "pnpm prettier"
+    "format": "pnpm prettier",
+    "changeset": "changeset",
+    "release": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.39.2",
     "@types/node": "^22.19.11",
     "eslint": "^9.39.2",
