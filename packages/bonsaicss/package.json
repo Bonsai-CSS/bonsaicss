@@ -1,0 +1,39 @@
+{
+  "name": "@bonsaicss/core",
+  "version": "0.1.0",
+  "description": "BonsaiCSS — An AST-first CSS pruner 🌳",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "css-tree": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/css-tree": "^2.3.0"
+  },
+  "keywords": [
+    "css",
+    "pruner",
+    "tree-shaking",
+    "unused-css",
+    "purge",
+    "optimize"
+  ]
+}

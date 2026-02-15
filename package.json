@@ -1,0 +1,36 @@
+{
+  "name": "@bonsaicss/monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "BonsaiCSS — An AST-first CSS pruner 🌳",
+  "packageManager": "pnpm@10.20.0",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint packages/*/src/**/*.ts",
+    "lint:fix": "eslint packages/*/src/**/*.ts --fix",
+    "clean": "turbo run clean",
+    "cli": "pnpm --filter @bonsaicss/cli run build && node packages/bonsaicss-cli/dist/cli.cjs",
+    "playground": "pnpm --filter @bonsaicss/bonsailab dev",
+    "playground:build": "pnpm --filter @bonsaicss/bonsailab build",
+    "playground:preview": "pnpm --filter @bonsaicss/bonsailab preview",
+    "prettier": "prettier --write --parser typescript '**/*.ts'",
+    "format": "pnpm prettier"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.19.11",
+    "eslint": "^9.39.2",
+    "prettier": "^3.8.1",
+    "tsup": "^8.5.1",
+    "turbo": "^2.8.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
