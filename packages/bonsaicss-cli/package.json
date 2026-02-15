@@ -2,6 +2,9 @@
   "name": "@bonsaicss/cli",
   "version": "0.1.0",
   "description": "BonsaiCSS CLI — prune unused CSS from the command line 🌳",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "bin": {

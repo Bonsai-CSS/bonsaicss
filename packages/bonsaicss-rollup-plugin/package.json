@@ -2,6 +2,9 @@
   "name": "@bonsaicss/rollup-plugin",
   "version": "0.1.0",
   "description": "BonsaiCSS Rollup plugin — prune unused CSS during Rollup builds 🌳",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",

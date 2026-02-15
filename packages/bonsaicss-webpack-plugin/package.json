@@ -2,6 +2,9 @@
   "name": "@bonsaicss/webpack-plugin",
   "version": "0.1.0",
   "description": "BonsaiCSS webpack plugin — prune unused CSS during webpack builds 🌳",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",

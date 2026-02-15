@@ -2,6 +2,9 @@
   "name": "@bonsaicss/postcss-plugin",
   "version": "0.1.0",
   "description": "BonsaiCSS PostCSS plugin — prune unused CSS during PostCSS processing 🌳",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
