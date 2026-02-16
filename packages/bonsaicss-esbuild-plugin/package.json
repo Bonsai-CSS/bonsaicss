@@ -2,6 +2,11 @@
   "name": "@bonsaicss/esbuild-plugin",
   "version": "0.1.0",
   "description": "BonsaiCSS esbuild plugin — prune unused CSS during esbuild builds 🌳",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bonsai-CSS/bonsaicss.git",
+    "directory": "packages/bonsaicss-esbuild-plugin"
+  },
   "publishConfig": {
     "access": "public"
   },

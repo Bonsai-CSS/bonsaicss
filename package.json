@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "description": "BonsaiCSS — An AST-first CSS pruner 🌳",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bonsai-CSS/bonsaicss.git"
+  },
   "packageManager": "pnpm@10.20.0",
   "scripts": {
     "build": "turbo run build",
