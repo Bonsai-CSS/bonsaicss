@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased]
+
+### Planned for 0.2.0
+
+> The following features are planned for the upcoming 0.2.0 release.
+> Implementation details may change before release.
+
+#### Added
+
+- Public custom extractor API with file matcher support:
+  - Callback extractor
+  - Structured extractor (`{ name, test, extract }`)
+  - Regex-based extraction strategy
+- Expanded scanner support:
+  - Astro `class:list`
+  - Solid `classList={...}`
+  - Blade `@class(...)`
+  - Rails `class_names(...)`
+- Advanced reporting improvements:
+  - `reportVersion: 1` in JSON report
+  - Interactive HTML report filters
+  - Class-level “why” column
+  - CI metrics fields (`report_version`, `size_after_kb`, `unused_css_percent`)
+- Persistent filesystem scan cache
+- Benchmark script for cold vs warm runs
+- CLI improvements:
+  - Dynamic config discovery
+  - `init` command with interactive mode
+  - CI gatekeeper mode (`--ci`, budgets)
+  - Improved terminal UX
+
+#### Behavior Changes (Planned)
+
+- `extractors` will run in exclusive mode when provided.
+- Persistent cache enabled by default.
+- CI mode will require at least one budget flag.
+
+---
+
 ## [0.1.0] - 2026-02-14
 
 ### Added
