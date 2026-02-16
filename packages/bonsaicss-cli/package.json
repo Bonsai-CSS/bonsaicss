@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BonsaiCSS CLI — prune unused CSS from the command line 🌳",
   "repository": {
     "type": "git",
@@ -16,7 +16,9 @@
     "bonsaicss": "./dist/cli.cjs"
   },
   "main": "./dist/cli.cjs",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -25,5 +27,10 @@
   "dependencies": {
     "@bonsaicss/core": "workspace:*"
   },
-  "keywords": ["css", "cli", "pruner", "bonsaicss"]
+  "keywords": [
+    "css",
+    "cli",
+    "pruner",
+    "bonsaicss"
+  ]
 }

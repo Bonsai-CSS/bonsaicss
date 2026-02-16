@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/webpack-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BonsaiCSS webpack plugin — prune unused CSS during webpack builds 🌳",
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -37,5 +39,11 @@
   "devDependencies": {
     "webpack": "^5.0.0"
   },
-  "keywords": ["css", "webpack", "webpack-plugin", "pruner", "bonsaicss"]
+  "keywords": [
+    "css",
+    "webpack",
+    "webpack-plugin",
+    "pruner",
+    "bonsaicss"
+  ]
 }

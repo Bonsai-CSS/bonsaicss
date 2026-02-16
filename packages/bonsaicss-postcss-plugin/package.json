@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/postcss-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BonsaiCSS PostCSS plugin — prune unused CSS during PostCSS processing 🌳",
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -37,5 +39,11 @@
   "devDependencies": {
     "postcss": "^8.4.0"
   },
-  "keywords": ["css", "postcss", "postcss-plugin", "pruner", "bonsaicss"]
+  "keywords": [
+    "css",
+    "postcss",
+    "postcss-plugin",
+    "pruner",
+    "bonsaicss"
+  ]
 }

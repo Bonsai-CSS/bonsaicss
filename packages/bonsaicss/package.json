@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BonsaiCSS — An AST-first CSS pruner 🌳",
   "repository": {
     "type": "git",
