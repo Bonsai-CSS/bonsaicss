@@ -192,21 +192,23 @@ Then open the Vite URL shown in terminal (usually `http://localhost:5173`) to us
 
 ## Development
 
-This project uses **npm workspaces**. From the root:
+This project uses **pnpm workspaces**. From the root:
 
 ```bash
 # Install all dependencies
-npm install
+pnpm install
 
 # Build all packages (core first, then plugins)
-npm run build
+pnpm build
 
 # Run tests
-npm test
+pnpm test
 
 # Type-check
-npm run typecheck
+pnpm typecheck
 ```
+
+> **Note:** Always use `pnpm` to install dependencies and run scripts in this monorepo.
 
 ## Contributing
 
