@@ -10,6 +10,7 @@ This package powers the BonsaiCSS ecosystem with:
 - advanced reporting (JSON/HTML/CI)
 - framework-aware patterns: React, Vue, Svelte, Angular, Astro, Solid
 - server-template patterns: Blade (`@class`) and Rails ERB (`class_names`)
+- persistent scan cache at `node_modules/.cache/bonsaicss`
 
 ## Installation
 
@@ -173,6 +174,15 @@ const pruned = pruneCss('.container{}.unused{}', scan, {
 
 const cssClasses = collectCssClassNames('.foo { color: red; } .bar { display: flex; }');
 ```
+
+## Performance Cache
+
+Built-in scanning uses:
+
+- in-memory cache per process
+- persistent cache per project at `node_modules/.cache/bonsaicss/scan-cache-v1.json`
+
+Cache invalidation uses file signature (`mtime`, `size`) and scanner mode (`keepDynamicPatterns`).
 
 ## API Reference
 

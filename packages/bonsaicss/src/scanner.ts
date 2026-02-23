@@ -10,6 +10,12 @@ import path from 'path';
 import type { PrunerOptions, ScanSummary } from './types.js';
 import type { ScanStringResult } from './scanner-custom.js';
 import {
+    loadPersistentScanCache,
+    readPersistentScanEntry,
+    savePersistentScanCache,
+    writePersistentScanEntry,
+} from './scan-cache.js';
+import {
     hasCustomExtractors,
     readCachedScan,
     runCustomExtractors,
@@ -24,6 +30,16 @@ import {
     parsePatternEntries,
     dedupeRegex,
 } from './utils.js';
+
+function getFileScanSignature(file: string, options: PrunerOptions | undefined): string | null {
+    try {
+        const stat = fs.statSync(file);
+        const mode = `builtin:${String(Boolean(options?.keepDynamicPatterns))}`;
+        return `${mode}:${String(stat.mtimeMs)}:${String(stat.size)}`;
+    } catch {
+        return null;
+    }
+}
 
 function extractQuotedStrings(expression: string): string[] {
     const strings: string[] = [];
@@ -422,15 +438,20 @@ export function scanContentForClassUsage(
     files: readonly string[],
     options?: PrunerOptions & { cwd?: string },
 ): ScanSummary {
+    const cwd = options?.cwd ?? process.cwd();
     const classes = new Set<string>();
     const dynamicPatterns: RegExp[] = [];
     const classOrigins = new Map<string, Set<string>>();
     const warnings: string[] = [];
+    const usePersistentCache = !hasCustomExtractors(options);
+    const persistentCache = usePersistentCache ? loadPersistentScanCache(cwd) : null;
+    let persistentCacheDirty = false;
 
     files.forEach(file => {
         let content = '';
-        let sourceLabel = normalizeSlashes(path.relative(options?.cwd ?? process.cwd(), file));
+        let sourceLabel = normalizeSlashes(path.relative(cwd, file));
         if (!sourceLabel) sourceLabel = normalizeSlashes(file);
+        const signature = getFileScanSignature(file, options);
 
         const cached = readCachedScan(file, options);
         if (cached) {
@@ -446,6 +467,25 @@ export function scanContentForClassUsage(
             });
             if (cached.warnings.length > 0) warnings.push(...cached.warnings);
             return;
+        }
+
+        if (usePersistentCache && persistentCache && signature) {
+            const persisted = readPersistentScanEntry(persistentCache, file, signature);
+            if (persisted) {
+                persisted.classes.forEach(token => classes.add(token));
+                dynamicPatterns.push(...persisted.dynamicPatterns);
+                persisted.classOrigins.forEach((origins, className) => {
+                    const existing = classOrigins.get(className);
+                    if (!existing) {
+                        classOrigins.set(className, new Set(origins));
+                        return;
+                    }
+                    origins.forEach(origin => existing.add(origin));
+                });
+                if (persisted.warnings.length > 0) warnings.push(...persisted.warnings);
+                writeCachedScan(file, options, persisted);
+                return;
+            }
         }
 
         try {
@@ -468,6 +508,10 @@ export function scanContentForClassUsage(
         if (scan.warnings.length > 0) warnings.push(...scan.warnings);
 
         writeCachedScan(file, options, scan);
+        if (usePersistentCache && persistentCache && signature) {
+            writePersistentScanEntry(persistentCache, file, signature, scan);
+            persistentCacheDirty = true;
+        }
     });
 
     if (Array.isArray(options?.safelist)) {
@@ -480,6 +524,10 @@ export function scanContentForClassUsage(
         dynamicPatterns.push(
             ...parsePatternEntries(options.keepDynamicPatterns as ReadonlyArray<string | RegExp>),
         );
+    }
+
+    if (usePersistentCache && persistentCache && persistentCacheDirty) {
+        savePersistentScanCache(cwd, persistentCache);
     }
 
     return {
