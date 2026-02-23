@@ -121,7 +121,7 @@ describe('scanContentString', () => {
         const result = scanContentString('x', { extractors: [broken, noisy] });
         expect(result.classes.has('ok')).toBe(true);
         expect(result.warnings.some(warning => warning.includes('extractor boom'))).toBe(true);
-        expect(result.warnings).toContain('custom warning');
+        expect(result.warnings.some(w => w.includes('custom warning'))).toBe(true);
     });
 });
 

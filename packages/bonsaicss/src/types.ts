@@ -24,8 +24,32 @@ export interface ExtractorResult {
     readonly warnings?: readonly string[];
 }
 
+/** Public custom extractor callback API. */
+export type BonsaiExtractorCallback = (
+    context: ExtractorContext,
+) => ExtractorResult | null | undefined;
+
+/** Controls which files an extractor should run for. */
+export type ExtractorFileMatcher = RegExp | ((filePath: string) => boolean);
+
+/** Public extractor definition API. */
+export interface BonsaiExtractorDefinition {
+    /** Optional label used in warnings/debugging. */
+    readonly name?: string;
+
+    /** Optional file matcher (path is normalized with `/`). */
+    readonly test?: ExtractorFileMatcher;
+
+    /**
+     * Extraction strategy:
+     * - callback for full control
+     * - regex for quick string capture extraction
+     */
+    readonly extract: RegExp | BonsaiExtractorCallback;
+}
+
 /** Public custom extractor API. */
-export type BonsaiExtractor = (context: ExtractorContext) => ExtractorResult | null | undefined;
+export type BonsaiExtractor = BonsaiExtractorCallback | BonsaiExtractorDefinition;
 
 /**
  * Options controlling the pruning behavior.
@@ -54,7 +78,7 @@ export interface PrunerOptions {
      * Custom extractors used by the scanner.
      *
      * - When provided and non-empty, only these extractors run.
-     * - When omitted, BonsaiCSS uses the built-in extractor heuristics.
+     * - When omitted, BonsaiCSS uses built-in extractor heuristics.
      */
     readonly extractors?: readonly BonsaiExtractor[];
 }

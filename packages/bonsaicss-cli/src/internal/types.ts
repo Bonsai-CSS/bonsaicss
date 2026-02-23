@@ -49,6 +49,13 @@ export interface CliConfig {
     watch?: boolean;
 }
 
+export interface InitOptions {
+    cwd: string;
+    force: boolean;
+    configPath?: string;
+    framework?: string;
+}
+
 export interface ParsedArgs {
     content: string[];
     css: string[];
