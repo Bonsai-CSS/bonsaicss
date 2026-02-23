@@ -1,5 +1,5 @@
 export type PruneMode = 'safe' | 'aggressive';
-export type Framework = 'vanilla' | 'react' | 'vue' | 'svelte' | 'angular';
+export type Framework = 'vanilla' | 'react' | 'vue' | 'svelte' | 'angular' | 'astro' | 'solid';
 
 export type DetectionType = 'literal' | 'template' | 'object' | 'dynamic';
 

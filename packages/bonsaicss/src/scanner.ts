@@ -1,6 +1,7 @@
 /**
  * Content scanner — extracts class names from HTML, JSX, Vue, Svelte,
- * Angular templates and JavaScript/TypeScript source files.
+ * Angular/Astro/Solid templates, server templates (Blade/ERB),
+ * and JavaScript/TypeScript source files.
  */
 
 import fs from 'fs';
@@ -285,7 +286,31 @@ export function scanContentString(
     );
     collectFromRegexCapture(
         content,
+        /\bclassList\s*=\s*\{([^}]*)\}/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromRegexCapture(
+        content,
         /:class\s*=\s*(["'])([\s\S]*?)\1/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromRegexCapture(
+        content,
+        /\bclass:list\s*=\s*(["'])([\s\S]*?)\1/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromRegexCapture(
+        content,
+        /\bclass:list\s*=\s*\{([^}]*)\}/g,
         constMap,
         addToken,
         dynamicPatterns,
@@ -352,6 +377,30 @@ export function scanContentString(
     collectFromMethodArgs(
         content,
         /\b(?:clsx|classnames)\s*\(([^)]*)\)/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromMethodArgs(
+        content,
+        /@class\s*\(([^)]*)\)/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromMethodArgs(
+        content,
+        /\b(?:class_names|classNames)\s*\(([^)]*)\)/g,
+        constMap,
+        addToken,
+        dynamicPatterns,
+        collectDynamic,
+    );
+    collectFromRegexCapture(
+        content,
+        /\bclass:\s*(["'])([\s\S]*?)\1/g,
         constMap,
         addToken,
         dynamicPatterns,

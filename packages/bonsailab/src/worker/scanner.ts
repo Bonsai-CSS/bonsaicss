@@ -134,9 +134,15 @@ export function scanSourceForClasses(
         /\bclassName\s*=\s*\{(`([\s\S]*?)`)\}/g,
         // Handles simple non-nested expressions.
         /\bclassName\s*=\s*\{([^{}]*)\}/g,
+        /\bclassList\s*=\s*\{([^{}]*)\}/g,
         /\b:class\s*=\s*["']([^"']*)["']/g,
+        /\bclass:list\s*=\s*["']([^"']*)["']/g,
+        /\bclass:list\s*=\s*\{([^{}]*)\}/g,
         /\b\[ngClass\]\s*=\s*["']([^"']*)["']/g,
         /\bclassList\.(?:add|remove|toggle|contains|replace)\s*\(([^)]*)\)/g,
+        /@class\s*\(([^)]*)\)/g,
+        /\bclass:\s*["']([^"']*)["']/g,
+        /\b(?:class_names|classNames)\s*\(([^)]*)\)/g,
         /\b(?:clsx|classnames|cn)\s*\(([^)]*)\)/g,
     ];
 

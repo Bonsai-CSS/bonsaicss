@@ -58,6 +58,37 @@ describe('scanContentString', () => {
         expect(result.classes.has('text-bold')).toBe(true);
     });
 
+    it('should extract classes from Astro class:list directive', () => {
+        const astro = `<div class:list={["card", isActive && "card--active", { "is-open": open }]} />`;
+        const result = scanContentString(astro, undefined);
+        expect(result.classes.has('card')).toBe(true);
+        expect(result.classes.has('card--active')).toBe(true);
+        expect(result.classes.has('is-open')).toBe(true);
+    });
+
+    it('should extract classes from Solid classList prop object', () => {
+        const solid = `<button classList={{ "btn": true, "btn-primary": isPrimary, active: on }} />`;
+        const result = scanContentString(solid, undefined);
+        expect(result.classes.has('btn')).toBe(true);
+        expect(result.classes.has('btn-primary')).toBe(true);
+        expect(result.classes.has('active')).toBe(true);
+    });
+
+    it('should extract classes from Blade @class helper', () => {
+        const blade = `<x-button @class(['btn', 'btn-primary' => $primary, 'is-open' => $open]) />`;
+        const result = scanContentString(blade, undefined);
+        expect(result.classes.has('btn')).toBe(true);
+        expect(result.classes.has('btn-primary')).toBe(true);
+        expect(result.classes.has('is-open')).toBe(true);
+    });
+
+    it('should extract classes from Rails class_names helper', () => {
+        const erb = `<%= tag.div class: class_names("card", { "card--active": active }, maybeClass) %>`;
+        const result = scanContentString(erb, undefined);
+        expect(result.classes.has('card')).toBe(true);
+        expect(result.classes.has('card--active')).toBe(true);
+    });
+
     it('should track class origins when sourceLabel is provided', () => {
         const html = '<div class="foo">Hi</div>';
         const result = scanContentString(html, undefined, 'src/app.html');

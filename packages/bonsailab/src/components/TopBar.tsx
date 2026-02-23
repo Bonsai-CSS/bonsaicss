@@ -21,6 +21,8 @@ const frameworks: Array<{ value: Framework; label: string }> = [
     { value: 'vue', label: 'Vue' },
     { value: 'svelte', label: 'Svelte' },
     { value: 'angular', label: 'Angular' },
+    { value: 'astro', label: 'Astro' },
+    { value: 'solid', label: 'Solid' },
 ];
 
 export function TopBar(props: TopBarProps): ReactElement {

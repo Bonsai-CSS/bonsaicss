@@ -8,6 +8,8 @@ This package powers the BonsaiCSS ecosystem with:
 - content scanning and class detection
 - public custom extractors API
 - advanced reporting (JSON/HTML/CI)
+- framework-aware patterns: React, Vue, Svelte, Angular, Astro, Solid
+- server-template patterns: Blade (`@class`) and Rails ERB (`class_names`)
 
 ## Installation
 
