@@ -43,6 +43,7 @@ export default {
   safelist: ["prose"],
   safelistPatterns: ["^btn-"],
   keepDynamicPatterns: true,
+  extractors: [],
   minify: true,
   analyze: true,
   report: {
@@ -55,6 +56,8 @@ export default {
   watch: false
 };
 ```
+
+`extractors` funciona em arquivos JS/TS e segue a API pública do `@bonsaicss/core` (`BonsaiExtractor`).
 
 JSON equivalent:
 
@@ -106,6 +109,8 @@ Precedence: CLI flags override the config file.
 - `--stats` (compact JSON to `stderr`)
 - `--watch`
 - `--help, -h`
+
+Note: `extractors` is configured via config file (`bonsai.config.js/ts`), not through a direct CLI flag.
 
 ## Init
 

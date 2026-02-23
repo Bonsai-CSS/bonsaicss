@@ -109,6 +109,30 @@ describe('scanContentString', () => {
         expect(result.dynamicPatterns.some(pattern => pattern.test('btn-primary'))).toBe(true);
     });
 
+    it('should support extractor definition with file matcher and regex extract', () => {
+        const extractor: BonsaiExtractor = {
+            name: 'liquid-class',
+            test: /\.liquid$/,
+            extract: /class="([^"]+)"/g,
+        };
+        const liquid = `<div class="btn btn-primary"></div><span class="chip"></span>`;
+        const result = scanContentString(liquid, { extractors: [extractor] }, 'views/page.liquid');
+
+        expect(result.classes).toEqual(new Set(['btn', 'btn-primary', 'chip']));
+        expect(result.classOrigins.get('btn')).toEqual(new Set(['views/page.liquid:1']));
+    });
+
+    it('should not fallback to built-in heuristics when custom extractors do not match file', () => {
+        const extractor: BonsaiExtractor = {
+            test: /\.liquid$/,
+            extract: /class="([^"]+)"/g,
+        };
+        const html = '<div class="should-not-be-read"></div>';
+        const result = scanContentString(html, { extractors: [extractor] }, 'src/app.html');
+
+        expect(result.classes.size).toBe(0);
+    });
+
     it('should expose extractor warnings and recover from extractor errors', () => {
         const broken: BonsaiExtractor = () => {
             throw new Error('extractor boom');
@@ -121,7 +145,7 @@ describe('scanContentString', () => {
         const result = scanContentString('x', { extractors: [broken, noisy] });
         expect(result.classes.has('ok')).toBe(true);
         expect(result.warnings.some(warning => warning.includes('extractor boom'))).toBe(true);
-        expect(result.warnings.some(w => w.includes('custom warning'))).toBe(true);
+        expect(result.warnings.some(warning => warning.includes('custom warning'))).toBe(true);
     });
 });
 

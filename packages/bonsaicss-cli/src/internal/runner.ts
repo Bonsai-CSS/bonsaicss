@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { bonsai, resolveContentFiles } from '@bonsaicss/core';
+import type { BonsaiExtractor } from '@bonsaicss/core';
 
 import { normalizeReportOptions, resolveMaybeAbsolute, validateResolvedOptions } from './config.js';
 import type { ReportOptions, ResolvedOptions, RunResult } from './types.js';
@@ -13,6 +14,7 @@ interface CoreBonsaiInput {
     safelist?: string[];
     safelistPatterns?: string[];
     keepDynamicPatterns?: boolean | string[];
+    extractors?: readonly BonsaiExtractor[];
     minify: boolean;
     analyze?: boolean | string;
     report?: ReportOptions;
@@ -42,6 +44,7 @@ export function runOnce(options: ResolvedOptions): RunResult {
         safelistPatterns:
             options.safelistPatterns.length > 0 ? options.safelistPatterns : undefined,
         keepDynamicPatterns: options.keepDynamicPatterns,
+        extractors: options.extractors,
         minify: options.minify,
         analyze: options.analyze,
         report: normalizeReportOptions(options.report),

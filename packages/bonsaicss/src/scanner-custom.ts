@@ -69,6 +69,9 @@ function regexExtractor(pattern: RegExp): BonsaiExtractorCallback {
                     classes.push({ name, line, type: 'literal' });
                 });
             });
+            if (match[0] === '') {
+                re.lastIndex += 1;
+            }
             match = re.exec(source);
         }
         return { classes };
@@ -83,10 +86,7 @@ function normalizeExtractor(extractor: BonsaiExtractor, index: number): Normaliz
         };
     }
 
-    const definition = extractor as BonsaiExtractorDefinition;
-    if (!definition.extract) {
-        throw new Error('Extractor definition must provide an extract strategy.');
-    }
+    const definition = extractor;
 
     return {
         name: definition.name?.trim() || `extractor:${String(index + 1)}`,
@@ -138,7 +138,7 @@ function applyExtractorResult(
             return;
         }
 
-        const match = entry as ExtractorClassMatch;
+        const match = entry;
         tokenizeClassList(match.name).forEach(token => {
             classes.add(token);
             if (!sourceLabel) return;
@@ -264,7 +264,7 @@ export function readCachedScan(
     if (!signature) return null;
 
     const cached = fileScanCache.get(file);
-    if (!cached || cached.signature !== signature) return null;
+    if (cached?.signature !== signature) return null;
 
     return hydrateCacheResult(cached);
 }
