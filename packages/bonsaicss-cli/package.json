@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "BonsaiCSS CLI — prune unused CSS from the command line 🌳",
   "repository": {
     "type": "git",

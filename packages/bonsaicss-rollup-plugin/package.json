@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/rollup-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BonsaiCSS Rollup plugin — prune unused CSS during Rollup builds 🌳",
   "repository": {
     "type": "git",
@@ -22,7 +22,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -37,5 +39,11 @@
   "devDependencies": {
     "rollup": "^4.0.0"
   },
-  "keywords": ["css", "rollup", "rollup-plugin", "pruner", "bonsaicss"]
+  "keywords": [
+    "css",
+    "rollup",
+    "rollup-plugin",
+    "pruner",
+    "bonsaicss"
+  ]
 }
