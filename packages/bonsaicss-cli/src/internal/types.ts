@@ -62,6 +62,7 @@ export interface CliConfig {
 export interface InitOptions {
     cwd: string;
     force: boolean;
+    yes?: boolean;
     configPath?: string;
     framework?: string;
 }

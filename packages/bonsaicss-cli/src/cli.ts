@@ -3,10 +3,11 @@ import path from 'path';
 import { parseArgs, parseInitArgs, printHelp, printInitHelp } from './internal/args.js';
 import { findDefaultConfigPath, loadConfig, mergeConfigWithArgs } from './internal/config.js';
 import { runInit } from './internal/init.js';
+import { writeError } from './internal/output.js';
 import { runOnce } from './internal/runner.js';
 import { runWithWatch } from './internal/watcher.js';
 
-function run(): void {
+async function run(): Promise<void> {
     const argv = process.argv.slice(2);
 
     if (argv[0] === 'init') {
@@ -15,7 +16,7 @@ function run(): void {
             printInitHelp();
             process.exit(0);
         }
-        runInit(initArgs);
+        await runInit(initArgs);
         return;
     }
 
@@ -48,15 +49,13 @@ function run(): void {
     runWithWatch(resolveOptions);
 }
 
-try {
-    run();
-} catch (error) {
+run().catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
-    process.stderr.write(`[bonsaicss] ${message}\n\n`);
+    writeError(message);
     if ((process.argv[2] ?? '') === 'init') {
         printInitHelp();
     } else {
         printHelp();
     }
     process.exit(1);
-}
+});

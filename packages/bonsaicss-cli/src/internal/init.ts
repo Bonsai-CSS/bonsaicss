@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import type prompts from 'prompts';
 
 import { findDefaultConfigPath, resolveMaybeAbsolute } from './config.js';
 import type { InitOptions } from './types.js';
+import { writeError, writeInfo, writeSuccess } from './output.js';
 
 type Framework = 'react' | 'vue' | 'svelte' | 'angular' | 'astro' | 'solid' | 'vanilla';
 
@@ -105,12 +107,93 @@ function serializeConfig(targetPath: string, config: Record<string, unknown>): s
     return `export default ${JSON.stringify(config, null, 2)};\n`;
 }
 
-export function runInit(options: InitOptions): void {
-    const framework =
+function isInteractiveInit(options: InitOptions): boolean {
+    return process.stdin.isTTY && process.stdout.isTTY && options.yes !== true;
+}
+
+function loadPrompts(): typeof prompts | null {
+    try {
+        const loaded = require('prompts') as unknown;
+        const mod = loaded as { default?: typeof prompts };
+        return mod.default ?? (mod as unknown as typeof prompts);
+    } catch {
+        return null;
+    }
+}
+
+async function resolveFramework(options: InitOptions): Promise<Framework> {
+    const inferred =
         normalizeFramework(options.framework) ?? getFrameworkFromPackageJson(options.cwd);
+    if (!isInteractiveInit(options) || options.framework) return inferred;
+    const prompts = loadPrompts();
+    if (!prompts) {
+        writeInfo(
+            'Interactive prompts are unavailable (install "prompts"), using inferred defaults.',
+        );
+        return inferred;
+    }
+
+    const response = await prompts(
+        {
+            type: 'select',
+            name: 'framework',
+            message: 'Select your framework',
+            initial: ['react', 'vue', 'svelte', 'angular', 'astro', 'solid', 'vanilla'].indexOf(
+                inferred,
+            ),
+            choices: [
+                { title: 'React', value: 'react' },
+                { title: 'Vue', value: 'vue' },
+                { title: 'Svelte', value: 'svelte' },
+                { title: 'Angular', value: 'angular' },
+                { title: 'Astro', value: 'astro' },
+                { title: 'Solid', value: 'solid' },
+                { title: 'Vanilla', value: 'vanilla' },
+            ],
+        },
+        {
+            onCancel: () => {
+                throw new Error('Initialization cancelled by user.');
+            },
+        },
+    );
+
+    const selected = (response as { framework?: string }).framework;
+    return normalizeFramework(selected) ?? inferred;
+}
+
+async function shouldOverwriteExisting(targetPath: string, options: InitOptions): Promise<boolean> {
+    if (!fs.existsSync(targetPath)) return true;
+    if (options.force) return true;
+    if (!isInteractiveInit(options)) return false;
+    const prompts = loadPrompts();
+    if (!prompts) {
+        writeInfo('Interactive prompts are unavailable (install "prompts"), refusing overwrite.');
+        return false;
+    }
+
+    writeInfo(`Config already exists: ${targetPath}`);
+    const response = await prompts(
+        {
+            type: 'confirm',
+            name: 'overwrite',
+            message: 'Overwrite existing config file?',
+            initial: false,
+        },
+        {
+            onCancel: () => {
+                throw new Error('Initialization cancelled by user.');
+            },
+        },
+    );
+    return response.overwrite === true;
+}
+
+export async function runInit(options: InitOptions): Promise<void> {
+    const framework = await resolveFramework(options);
     const targetPath = resolveTargetConfigPath(options);
 
-    if (fs.existsSync(targetPath) && !options.force) {
+    if (!(await shouldOverwriteExisting(targetPath, options))) {
         throw new Error(
             `Config already exists: ${targetPath}. Use --force to overwrite or pass --config for a new file.`,
         );
@@ -124,13 +207,18 @@ export function runInit(options: InitOptions): void {
         minify: true,
     };
 
-    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.writeFileSync(targetPath, serializeConfig(targetPath, config), 'utf8');
+    try {
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.writeFileSync(targetPath, serializeConfig(targetPath, config), 'utf8');
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        writeError(`Failed to create config file: ${message}`);
+        throw err;
+    }
 
-    process.stdout.write(`[bonsaicss] Created ${targetPath}\n`);
-    process.stdout.write(`[bonsaicss] Framework: ${framework}\n`);
-    process.stdout.write('[bonsaicss] Next step: bonsaicss --config ');
-    process.stdout.write(
-        `${path.relative(options.cwd, targetPath) || path.basename(targetPath)}\n`,
+    writeSuccess(`Created ${targetPath}`);
+    writeInfo(`Framework: ${framework}`);
+    writeInfo(
+        `Next step: bonsaicss --config ${path.relative(options.cwd, targetPath) || path.basename(targetPath)}`,
     );
 }

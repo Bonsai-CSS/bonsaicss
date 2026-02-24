@@ -1,5 +1,5 @@
-import { execFileSync } from 'child_process';
 import fs from 'fs';
+import { createRequire } from 'module';
 import path from 'path';
 
 import type { CliConfig, ParsedArgs, ReportOptions, ResolvedOptions } from './types.js';
@@ -13,11 +13,6 @@ const DEFAULT_CONFIG_FILENAMES = [
     'bonsai.config.cjs',
     'bonsai.config.json',
 ];
-
-function getNodeMajorVersion(): number {
-    const major = Number(process.versions.node.split('.')[0]);
-    return Number.isFinite(major) ? major : 0;
-}
 
 export function resolveMaybeAbsolute(base: string, target: string): string {
     if (path.isAbsolute(target)) return target;
@@ -70,49 +65,19 @@ export function loadConfig(configPath: string, cwd = process.cwd()): CliConfig {
                 `Unsupported config extension: ${extension || '(none)'}. Use .json/.js/.cjs/.mjs/.ts/.mts/.cts.`,
             );
         }
-
-        if (['.ts', '.mts', '.cts'].includes(extension) && getNodeMajorVersion() < 22) {
-            throw new Error(
-                'TypeScript config files require Node.js >= 22 in this build. Use .js/.mjs/.cjs/.json or upgrade Node.',
-            );
-        }
-
-        const script = `
-const { pathToFileURL } = require('node:url');
-const { createRequire } = require('node:module');
-const file = process.argv[1];
-(async () => {
-  let loaded;
-  if (file.endsWith('.cjs')) {
-    loaded = createRequire(file)(file);
-  } else {
-    loaded = await import(pathToFileURL(file).href);
-  }
-  const candidate = loaded && typeof loaded === 'object' && 'default' in loaded ? loaded.default : loaded;
-  const config = typeof candidate === 'function' ? candidate() : candidate;
-  if (config && typeof config.then === 'function') {
-    throw new Error('Async config functions are not supported. Return a plain object.');
-  }
-  process.stdout.write(JSON.stringify(config));
-})().catch((error) => {
-  process.stderr.write(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
-`;
-
-        const args = [];
-        if (['.ts', '.mts', '.cts'].includes(extension)) {
-            args.push('--experimental-strip-types');
-        }
-        args.push('-e', script, absolutePath);
-
-        const output = execFileSync(process.execPath, args, {
-            encoding: 'utf8',
-            cwd,
-            maxBuffer: 4 * 1024 * 1024,
-        }).trim();
-
-        const loaded: unknown = output.length > 0 ? JSON.parse(output) : {};
+        const require = createRequire(import.meta.url);
+        const { createJiti } = require('jiti') as {
+            createJiti: (
+                filename: string,
+                options?: { interopDefault?: boolean; moduleCache?: boolean; fsCache?: boolean },
+            ) => (id: string) => unknown;
+        };
+        const jiti = createJiti(import.meta.url, {
+            interopDefault: true,
+            moduleCache: false,
+            fsCache: false,
+        });
+        const loaded = jiti(absolutePath);
         return normalizeLoadedConfig(loaded);
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);

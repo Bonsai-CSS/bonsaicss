@@ -5,7 +5,9 @@ import { bonsai, resolveContentFiles } from '@bonsaicss/core';
 import type { BonsaiExtractor } from '@bonsaicss/core';
 
 import { normalizeReportOptions, resolveMaybeAbsolute, validateResolvedOptions } from './config.js';
+import { writeInfo, writeWarning, writeError } from './output.js';
 import type { ReportOptions, ResolvedOptions, RunResult } from './types.js';
+import { evaluateCIBudgets } from './evaluateCIBudgets.js';
 
 interface CoreBonsaiInput {
     cwd: string;
@@ -56,8 +58,8 @@ export function runOnce(options: ResolvedOptions): RunResult {
         const outputPath = resolveMaybeAbsolute(options.cwd, options.out);
         fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, result.css, 'utf8');
-        process.stderr.write(
-            `[bonsaicss] removed ${String(result.stats.removedRules)} of ${String(result.stats.totalRules)} rules -> ${outputPath}\n`,
+        writeInfo(
+            `removed ${String(result.stats.removedRules)} of ${String(result.stats.totalRules)} rules -> ${outputPath}`,
         );
     } else {
         process.stdout.write(result.css);
@@ -78,13 +80,13 @@ export function runOnce(options: ResolvedOptions): RunResult {
             result.keptClasses.length + result.removedClasses.length;
         const classesRemoved = report?.stats.classesRemoved ?? result.removedClasses.length;
         const reduction = (reductionRatio * 100).toFixed(2);
-        process.stderr.write(
-            `[bonsaicss] files=${String(filesScanned)} classes=${String(classesDetected)} ` +
-                `removed=${String(classesRemoved)} rulesRemoved=${String(result.stats.removedRules)} reduction=${reduction}%\n`,
+        writeInfo(
+            `files=${String(filesScanned)} classes=${String(classesDetected)} ` +
+                `removed=${String(classesRemoved)} rulesRemoved=${String(result.stats.removedRules)} reduction=${reduction}%`,
         );
         if (report?.warnings.length) {
             report.warnings.forEach((warning: string) => {
-                process.stderr.write(`[bonsaicss][warning] ${warning}\n`);
+                writeWarning(warning);
             });
         }
     }
@@ -111,6 +113,14 @@ export function runOnce(options: ResolvedOptions): RunResult {
             durationMs: report?.stats.durationMs ?? 0,
         };
         process.stderr.write(`${JSON.stringify(payload)}\n`);
+    }
+
+    const ciFailures = evaluateCIBudgets(options.ci, result);
+    if (ciFailures.length > 0) {
+        ciFailures.forEach((message: string) => {
+            writeError(`[ci] ${message}`);
+        });
+        throw new Error('CI budgets exceeded.');
     }
 
     return result;

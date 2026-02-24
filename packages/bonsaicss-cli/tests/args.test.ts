@@ -45,10 +45,12 @@ describe('parseInitArgs', () => {
             '--config',
             'bonsai.config.ts',
             '--force',
+            '--yes',
         ]);
 
         expect(parsed.framework).toBe('astro');
         expect(parsed.configPath).toBe('bonsai.config.ts');
         expect(parsed.force).toBe(true);
+        expect(parsed.yes).toBe(true);
     });
 });

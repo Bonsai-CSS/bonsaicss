@@ -16,14 +16,27 @@
     "bonsaicss": "./dist/cli.cjs"
   },
   "main": "./dist/cli.cjs",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bonsaicss/core": "workspace:*"
+    "@bonsaicss/core": "workspace:*",
+    "jiti": "^2.6.1",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2"
   },
-  "keywords": ["css", "cli", "pruner", "bonsaicss"]
+  "keywords": [
+    "css",
+    "cli",
+    "pruner",
+    "bonsaicss"
+  ],
+  "devDependencies": {
+    "@types/prompts": "^2.4.9"
+  }
 }

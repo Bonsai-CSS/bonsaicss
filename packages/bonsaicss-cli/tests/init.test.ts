@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 describe('runInit', () => {
-    it('creates config file using detected framework', () => {
+    it('creates config file using detected framework', async () => {
         const cwd = path.resolve(TEMP_ROOT, 'detected');
         fs.mkdirSync(cwd, { recursive: true });
         fs.writeFileSync(
@@ -30,7 +30,7 @@ describe('runInit', () => {
             'utf8',
         );
 
-        runInit({ cwd, force: false });
+        await runInit({ cwd, force: false, yes: true });
 
         const configPath = path.join(cwd, 'bonsai.config.ts');
         expect(fs.existsSync(configPath)).toBe(true);
@@ -38,12 +38,14 @@ describe('runInit', () => {
         expect(content).toContain('src/**/*.{astro,html,js,ts,jsx,tsx,vue,svelte}');
     });
 
-    it('refuses to overwrite without force', () => {
+    it('refuses to overwrite without force', async () => {
         const cwd = path.resolve(TEMP_ROOT, 'overwrite');
         fs.mkdirSync(cwd, { recursive: true });
         const configPath = path.join(cwd, 'bonsai.config.ts');
         fs.writeFileSync(configPath, 'export default {};', 'utf8');
 
-        expect(() => runInit({ cwd, force: false })).toThrow('Config already exists');
+        await expect(runInit({ cwd, force: false, yes: true })).rejects.toThrow(
+            'Config already exists',
+        );
     });
 });

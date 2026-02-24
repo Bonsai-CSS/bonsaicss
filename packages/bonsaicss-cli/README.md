@@ -32,8 +32,6 @@ You can load options from:
 
 If `--config` is not provided, the CLI automatically detects a `bonsai.config.*` file in `cwd`.
 
-Note: `bonsai.config.ts` requires Node.js >= 22 in the current loader implementation.
-
 Example `bonsai.config.ts`:
 
 ```ts
@@ -123,6 +121,7 @@ npx bonsaicss init
 ```
 
 The `init` command detects your framework via `package.json` (`react`, `vue`, `svelte`, `angular`, `astro`, `solid`) and creates `bonsai.config.ts`.
+In interactive terminals, `init` opens prompts to confirm framework/overwrite decisions.
 
 Options:
 
@@ -130,6 +129,7 @@ Options:
 - `--config <file>`
 - `--framework <react|vue|svelte|angular|astro|solid|vanilla>`
 - `--force`
+- `--yes` (disable interactive prompts)
 
 ## Reporting
 

@@ -1,5 +1,6 @@
 import fs from 'fs';
 
+import { writeError, writeInfo } from './output.js';
 import { collectWatchFiles, runOnce } from './runner.js';
 import type { ResolvedOptions } from './types.js';
 
@@ -36,7 +37,7 @@ export function runWithWatch(resolveOptions: () => ResolvedOptions): void {
                         refreshWatchers();
                     } catch (err) {
                         const message = err instanceof Error ? err.message : String(err);
-                        process.stderr.write(`[bonsaicss] ${message}\n`);
+                        writeError(message);
                     }
                 }, 120);
             });
@@ -48,8 +49,8 @@ export function runWithWatch(resolveOptions: () => ResolvedOptions): void {
         runOnce(options);
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        process.stderr.write(`[bonsaicss] initial run failed: ${message}\n`);
+        writeError(`initial run failed: ${message}`);
     }
     refreshWatchers();
-    process.stderr.write('[bonsaicss] watch mode active\n');
+    writeInfo('watch mode active');
 }
