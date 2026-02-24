@@ -97,6 +97,25 @@ export function parseArgs(argv: string[]): ParsedArgs {
                 parsed.dynamicPatterns.push(next);
                 i += 1;
                 break;
+            case '--ci':
+                parsed.ci = true;
+                break;
+            case '--max-unused-percent':
+                if (!next || next.startsWith('-'))
+                    throw new Error('Missing value for --max-unused-percent');
+                parsed.maxUnusedPercent = Number(next);
+                if (Number.isNaN(parsed.maxUnusedPercent))
+                    throw new Error('Invalid number for --max-unused-percent');
+                i += 1;
+                break;
+            case '--max-final-kb':
+                if (!next || next.startsWith('-'))
+                    throw new Error('Missing value for --max-final-kb');
+                parsed.maxFinalKb = Number(next);
+                if (Number.isNaN(parsed.maxFinalKb))
+                    throw new Error('Invalid number for --max-final-kb');
+                i += 1;
+                break;
             case '--minify':
                 parsed.minify = true;
                 break;

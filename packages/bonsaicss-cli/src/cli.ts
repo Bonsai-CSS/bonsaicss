@@ -53,6 +53,10 @@ try {
 } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     process.stderr.write(`[bonsaicss] ${message}\n\n`);
-    printHelp();
+    if ((process.argv[2] ?? '') === 'init') {
+        printInitHelp();
+    } else {
+        printHelp();
+    }
     process.exit(1);
 }

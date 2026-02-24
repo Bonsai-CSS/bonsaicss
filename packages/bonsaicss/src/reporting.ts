@@ -84,6 +84,7 @@ export function buildBonsaiReport(
     );
 
     return {
+        reportVersion: 1,
         generatedAt: new Date().toISOString(),
         cwd,
         contentGlobs: [...options.content],
@@ -155,8 +156,17 @@ function renderHtmlReport(report: BonsaiReport): string {
   <h2>Warnings</h2>
   <ul>${warningRows}</ul>
   <h2>Class Matrix</h2>
+  <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+    <input type="text" id="class-filter" placeholder="Filter classes..." style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px;" />
+    <select id="status-filter" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+      <option value="all">All Statuses</option>
+      <option value="kept">Kept</option>
+      <option value="detected-only">Detected Only</option>
+      <option value="removed">Removed</option>
+    </select>
+  </div>
   <table>
-    <thead><tr><th>Class</th><th>Status</th><th>Origins</th></tr></thead>
+    <thead><tr><th>Class</th><th>Status</th><th>Why</th></tr></thead>
     <tbody>
       ${classRows}
     </tbody>
@@ -202,13 +212,16 @@ export function emitAdvancedReports(report: BonsaiReport, options: BonsaiOptions
                 ? path.resolve(cwd, reportOptions.ci)
                 : path.resolve(cwd, 'bonsai-ci-stats.txt');
         const lines = [
+            `report_version=${String(report.reportVersion ?? 1)}`,
             `files_scanned=${String(report.stats.filesScanned)}`,
             `classes_detected=${String(report.stats.classesDetected)}`,
             `classes_removed=${String(report.stats.classesRemoved)}`,
             `rules_removed=${String(report.stats.removedRules)}`,
             `size_before=${String(report.stats.sizeBefore)}`,
             `size_after=${String(report.stats.sizeAfter)}`,
+            `size_after_kb=${(report.stats.sizeAfter / 1024).toFixed(2)}`,
             `reduction_ratio=${report.stats.reductionRatio.toFixed(6)}`,
+            `unused_css_percent=${(report.stats.reductionRatio * 100).toFixed(2)}`,
             `duration_ms=${report.stats.durationMs.toFixed(3)}`,
         ];
         try {

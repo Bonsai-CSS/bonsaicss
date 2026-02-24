@@ -154,6 +154,7 @@ export interface BonsaiReportClassEntry {
 }
 
 export interface BonsaiReport {
+    readonly reportVersion?: number;
     readonly generatedAt: string;
     readonly cwd: string;
     readonly contentGlobs: readonly string[];

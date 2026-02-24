@@ -44,7 +44,12 @@ export function runWithWatch(resolveOptions: () => ResolvedOptions): void {
         });
     };
 
-    runOnce(options);
+    try {
+        runOnce(options);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        process.stderr.write(`[bonsaicss] initial run failed: ${message}\n`);
+    }
     refreshWatchers();
     process.stderr.write('[bonsaicss] watch mode active\n');
 }

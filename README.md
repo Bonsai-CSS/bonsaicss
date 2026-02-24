@@ -86,7 +86,7 @@ BonsaiCSS works in three phases:
 └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-1. **Scan** — Reads your HTML, JSX, Vue, Svelte, and Angular templates to find every class name in use. Also detects dynamic patterns like template literals (`bg-${color}`) and `classList.add()`.
+1. **Scan** — Reads HTML, JSX/TSX, Vue, Svelte, Angular, Astro and Solid templates to find every class name in use. Also detects dynamic patterns like template literals (`bg-${color}`), `classList.add()`, Blade `@class(...)`, and Rails `class_names(...)`.
 
 2. **Compare** — Collects all class selectors from your CSS and checks them against the scanned set.
 
@@ -132,6 +132,9 @@ BonsaiCSS scans and extracts class names from:
 - **Vue** — `:class` bindings and object/array syntax
 - **Svelte** — `class:name={condition}` directives
 - **Angular** — `[class.name]="condition"` bindings
+- **Astro** — `class:list` bindings
+- **SolidJS** — `classList={...}` object syntax
+- **Server templates** — Blade `@class(...)`, ERB `class_names(...)`
 - **JavaScript / TypeScript** — `classList.add()`, `classList.toggle()`, `clsx()`, `classnames()`, `cn()`
 
 ## Programmatic API
@@ -188,7 +191,16 @@ Then open the Vite URL shown in terminal (usually `http://localhost:5173`) to us
 - Monaco editors for content + CSS
 - Safe/Aggressive mode
 - Framework-aware presets (Vanilla, React, Vue, Svelte, Angular)
+- Framework-aware presets (Vanilla, React, Vue, Svelte, Angular, Astro, Solid)
 - CSS before/after + diff + detected/removed classes + metrics
+
+## Benchmark
+
+Run the core benchmark (cold vs warm cache):
+
+```bash
+npm run benchmark:core
+```
 
 ## Development
 

@@ -14,6 +14,11 @@ const DEFAULT_CONFIG_FILENAMES = [
     'bonsai.config.json',
 ];
 
+function getNodeMajorVersion(): number {
+    const major = Number(process.versions.node.split('.')[0]);
+    return Number.isFinite(major) ? major : 0;
+}
+
 export function resolveMaybeAbsolute(base: string, target: string): string {
     if (path.isAbsolute(target)) return target;
     return path.resolve(base, target);
@@ -66,6 +71,12 @@ export function loadConfig(configPath: string, cwd = process.cwd()): CliConfig {
             );
         }
 
+        if (['.ts', '.mts', '.cts'].includes(extension) && getNodeMajorVersion() < 22) {
+            throw new Error(
+                'TypeScript config files require Node.js >= 22 in this build. Use .js/.mjs/.cjs/.json or upgrade Node.',
+            );
+        }
+
         const script = `
 const { pathToFileURL } = require('node:url');
 const { createRequire } = require('node:module');
@@ -98,6 +109,7 @@ const file = process.argv[1];
         const output = execFileSync(process.execPath, args, {
             encoding: 'utf8',
             cwd,
+            maxBuffer: 4 * 1024 * 1024,
         }).trim();
 
         const loaded: unknown = output.length > 0 ? JSON.parse(output) : {};
@@ -136,6 +148,18 @@ export function mergeConfigWithArgs(config: CliConfig, args: ParsedArgs): Resolv
               }
             : config.report;
 
+    const ci =
+        args.ci !== undefined ||
+        args.maxUnusedPercent !== undefined ||
+        args.maxFinalKb !== undefined ||
+        config.ci
+            ? {
+                  enabled: args.ci ?? config.ci?.enabled,
+                  maxUnusedPercent: args.maxUnusedPercent ?? config.ci?.maxUnusedPercent,
+                  maxFinalKb: args.maxFinalKb ?? config.ci?.maxFinalKb,
+              }
+            : undefined;
+
     return {
         configPath: args.configPath,
         cwd,
@@ -145,6 +169,8 @@ export function mergeConfigWithArgs(config: CliConfig, args: ParsedArgs): Resolv
         safelist,
         safelistPatterns,
         keepDynamicPatterns,
+        extractors: config.extractors,
+        ci,
         minify: args.minify ?? config.minify ?? false,
         analyze: args.analyze ?? config.analyze,
         report,
@@ -169,5 +195,19 @@ export function validateResolvedOptions(options: ResolvedOptions): void {
 
     if (options.css.length === 0) {
         throw new Error('At least one --css file is required.');
+    }
+
+    if (options.ci?.enabled) {
+        if (options.ci.maxUnusedPercent === undefined && options.ci.maxFinalKb === undefined) {
+            throw new Error(
+                'CI mode requires at least one budget (--max-unused-percent or --max-final-kb).',
+            );
+        }
+    }
+
+    if (options.ci?.maxUnusedPercent !== undefined) {
+        if (options.ci.maxUnusedPercent < 0 || options.ci.maxUnusedPercent > 100) {
+            throw new Error('--max-unused-percent must be between 0 and 100.');
+        }
     }
 }

@@ -2,6 +2,12 @@ import type { BonsaiExtractor } from '@bonsaicss/core';
 
 export type ReportOutput = boolean | string;
 
+export interface CiOptions {
+    enabled?: boolean;
+    maxUnusedPercent?: number;
+    maxFinalKb?: number;
+}
+
 export interface ReportOptions {
     json?: ReportOutput;
     html?: ReportOutput;
@@ -44,6 +50,7 @@ export interface CliConfig {
     safelistPatterns?: string[];
     keepDynamicPatterns?: boolean | string[];
     extractors?: readonly BonsaiExtractor[];
+    ci?: CiOptions;
     minify?: boolean;
     analyze?: boolean | string;
     report?: ReportOptions;
@@ -68,6 +75,9 @@ export interface ParsedArgs {
     safelistPatterns: string[];
     keepDynamicPatterns?: boolean;
     dynamicPatterns: string[];
+    ci?: boolean;
+    maxUnusedPercent?: number;
+    maxFinalKb?: number;
     minify?: boolean;
     analyze?: boolean | string;
     reportJson?: boolean | string;
@@ -90,6 +100,7 @@ export interface ResolvedOptions {
     safelistPatterns: string[];
     keepDynamicPatterns?: boolean | string[];
     extractors?: readonly BonsaiExtractor[];
+    ci?: CiOptions;
     minify: boolean;
     analyze?: boolean | string;
     report?: ReportOptions;

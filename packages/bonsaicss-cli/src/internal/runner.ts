@@ -120,7 +120,11 @@ export function collectWatchFiles(options: ResolvedOptions): string[] {
     const contentFiles = resolveFiles(options.content, options.cwd);
     const cssFiles = options.css.map(file => resolveMaybeAbsolute(options.cwd, file));
     const configFiles = options.configPath
-        ? [resolveMaybeAbsolute(process.cwd(), options.configPath)]
+        ? [
+              path.isAbsolute(options.configPath)
+                  ? options.configPath
+                  : resolveMaybeAbsolute(options.cwd, options.configPath),
+          ]
         : [];
 
     const unique = new Set<string>([...contentFiles, ...cssFiles, ...configFiles]);

@@ -184,6 +184,22 @@ Built-in scanning uses:
 
 Cache invalidation uses file signature (`mtime`, `size`) and scanner mode (`keepDynamicPatterns`).
 
+## Benchmark
+
+Run the core benchmark:
+
+```bash
+pnpm --filter @bonsaicss/core run benchmark
+```
+
+Optional knobs:
+
+```bash
+node packages/bonsaicss/scripts/benchmark.mjs --files 500 --classes 4000 --iterations 8
+```
+
+Output includes cold vs warm phase (persistent cache impact), plus scan/prune timing averages.
+
 ## API Reference
 
 ### Main Functions
