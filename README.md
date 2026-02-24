@@ -17,6 +17,7 @@ Trim your CSS like a bonsai tree 🌳
 <p align="center">
   <a href="#packages">Packages</a> •
   <a href="#quick-start">Quick Start</a> •
+  <a href="#migration-v020">Migration</a> •
   <a href="#how-it-works">How It Works</a> •
   <a href="#options">Options</a> •
   <a href="#contributing">Contributing</a>
@@ -70,6 +71,11 @@ export default {
 ```
 
 That's it. Unused CSS rules are stripped automatically during the build.
+
+## Migration (v0.2.0)
+
+- Core migration details: `packages/bonsaicss/README.md` (`Migration (v0.1.x -> v0.2.0)`).
+- CLI migration details + full `bonsai.config.ts` example: `packages/bonsaicss-cli/README.md`.
 
 ## How It Works
 
@@ -190,7 +196,6 @@ Then open the Vite URL shown in terminal (usually `http://localhost:5173`) to us
 - Worker-based pruning (main thread stays responsive)
 - Monaco editors for content + CSS
 - Safe/Aggressive mode
-- Framework-aware presets (Vanilla, React, Vue, Svelte, Angular)
 - Framework-aware presets (Vanilla, React, Vue, Svelte, Angular, Astro, Solid)
 - CSS before/after + diff + detected/removed classes + metrics
 

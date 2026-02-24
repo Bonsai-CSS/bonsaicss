@@ -86,6 +86,17 @@ Extractor contracts:
 - output: `ExtractorResult { classes?, dynamicPatterns?, warnings? }`
 - `classes` supports strings or objects (`ExtractorClassMatch`) with `line` and `type`
 
+## Migration (v0.1.x -> v0.2.0)
+
+### Behavior Changes
+
+- `extractors` is now exclusive.
+  If `options.extractors` is provided and non-empty, built-in scanning heuristics are skipped.
+- Persistent scan cache is enabled by default.
+  Cache file: `node_modules/.cache/bonsaicss/scan-cache-v1.json`.
+- Reporting schema now includes `reportVersion: 1`.
+  CI output also includes `report_version`, `size_after_kb`, `unused_css_percent`.
+
 ## Reporting
 
 `bonsai()` always returns `result.report` (`BonsaiReport`) in memory.

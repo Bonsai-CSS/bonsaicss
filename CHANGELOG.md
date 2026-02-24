@@ -7,44 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased]
+## [0.2.0] - unreleased
 
-### Planned for 0.2.0
+### Added
 
-> The following features are planned for the upcoming 0.2.0 release.
-> Implementation details may change before release.
+- **Core (`@bonsaicss/core`)**
+  - Public custom extractor API with file matcher support:
+    - callback extractor
+    - definition extractor (`{ name, test, extract }`)
+    - regex-based extraction strategy
+  - Expanded scanner support:
+    - Astro `class:list`
+    - Solid `classList={...}`
+    - Blade `@class(...)`
+    - Rails `class_names(...)`
+  - Advanced reporting improvements:
+    - `reportVersion: 1` in JSON report
+    - interactive HTML report filters (class/status)
+    - class-level “why” column and enriched metrics
+    - CI report fields: `report_version`, `size_after_kb`, `unused_css_percent`
+  - Persistent file-system scan cache:
+    - `node_modules/.cache/bonsaicss/scan-cache-v1.json`
+    - invalidation by file signature (`mtime`, `size`) and mode
+  - Benchmark script for cold vs warm runs.
 
-#### Added
+- **CLI (`@bonsaicss/cli`)**
+  - Dynamic config support:
+    - `bonsai.config.{json,js,cjs,mjs,ts,mts,cts}`
+    - config autodiscovery when `--config` is omitted
+  - `init` command:
+    - framework detection
+    - interactive mode on TTY
+    - non-interactive mode via `--yes`
+  - CI gatekeeper mode:
+    - `--ci`
+    - `--max-unused-percent`
+    - `--max-final-kb`
+  - Terminal UX improvements:
+    - colored output support (`picocolors`)
+    - clearer warning/error messages.
 
-- Public custom extractor API with file matcher support:
-  - Callback extractor
-  - Structured extractor (`{ name, test, extract }`)
-  - Regex-based extraction strategy
-- Expanded scanner support:
-  - Astro `class:list`
-  - Solid `classList={...}`
-  - Blade `@class(...)`
-  - Rails `class_names(...)`
-- Advanced reporting improvements:
-  - `reportVersion: 1` in JSON report
-  - Interactive HTML report filters
-  - Class-level “why” column
-  - CI metrics fields (`report_version`, `size_after_kb`, `unused_css_percent`)
-- Persistent filesystem scan cache
-- Benchmark script for cold vs warm runs
-- CLI improvements:
-  - Dynamic config discovery
-  - `init` command with interactive mode
-  - CI gatekeeper mode (`--ci`, budgets)
-  - Improved terminal UX
+- **BonsaiLab (`@bonsaicss/bonsailab`)**
+  - Framework options/presets for Astro and Solid.
+  - Worker scanner coverage aligned with core patterns.
 
-#### Behavior Changes (Planned)
+### Changed
 
-- `extractors` will run in exclusive mode when provided.
-- Persistent cache enabled by default.
-- CI mode will require at least one budget flag.
+- Core extractor behavior is now explicit and documented as **exclusive** when `extractors` is provided.
+- CLI watch mode now reports initial-run failure without crashing the watcher.
+- CLI config/watch path handling was hardened for cross-platform resolution behavior.
 
----
+### Behavior Changes
+
+- `extractors` (core) now run in exclusive mode:
+  - when non-empty, built-in scanner heuristics are skipped.
+- CI budgets (CLI) are enforced when enabled:
+  - `--ci` requires at least one budget.
+- Persistent scanner cache is enabled by default in core.
+- `init` uses interactive prompts by default in TTY; use `--yes` for automation.
+
+### Performance
+
+- Faster repeat scans in large projects with persistent cache reuse.
+- New benchmark tooling to measure cold vs warm performance.
+
+### Documentation
+
+- Migration sections added to core and CLI READMEs.
+- Full `bonsai.config.ts` example covering `extractors`, `ci`, and `report`.
+- Root README updated with v0.2.0 migration links and framework support updates.
 
 ## [0.1.0] - 2026-02-14
 

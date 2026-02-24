@@ -89,6 +89,64 @@ Example:
 
 Precedence: CLI flags override the config file.
 
+## Migration (v0.1.x -> v0.2.0)
+
+### Behavior Changes
+
+- `extractors` is now an exclusive mode in core scanning.
+  If `extractors` is defined and non-empty, built-in heuristics are not used.
+- CI budgets are strict when enabled.
+  `--ci` now requires at least one budget (`--max-unused-percent` or `--max-final-kb`).
+- Persistent scanner cache is enabled by default in core.
+  Cache is written to `node_modules/.cache/bonsaicss/scan-cache-v1.json`.
+- `init` is interactive by default on TTY.
+  Use `--yes` for non-interactive/CI usage.
+
+### Full `bonsai.config.ts` Example
+
+```ts
+export default {
+  cwd: ".",
+  content: ["src/**/*.{html,tsx,jsx,vue,svelte,astro,liquid,erb}"],
+  css: ["src/styles.css"],
+  out: "dist/styles.pruned.css",
+  extractors: [
+    {
+      name: "liquid-classes",
+      test: /\.liquid$/,
+      extract: /class=\"([^\"]+)\"/g
+    },
+    {
+      name: "legacy-erb",
+      test: /\.erb$/,
+      extract: ({ source }) => ({
+        classes: Array.from(source.matchAll(/class:\s*\"([^\"]+)\"/g)).flatMap((m) =>
+          (m[1] ?? "").split(/\s+/).filter(Boolean)
+        ),
+        warnings: []
+      })
+    }
+  ],
+  safelist: ["prose", "is-active"],
+  safelistPatterns: ["^btn-", "/^tw-/"],
+  keepDynamicPatterns: true,
+  minify: true,
+  report: {
+    json: "reports/bonsai-report.json",
+    html: "reports/bonsai-report.html",
+    ci: "reports/bonsai-ci.txt"
+  },
+  ci: {
+    enabled: true,
+    maxUnusedPercent: 5,
+    maxFinalKb: 32
+  },
+  verbose: true,
+  stats: false,
+  watch: false
+};
+```
+
 ## Options
 
 - `--content, -c <glob>` (repeatable, required)
