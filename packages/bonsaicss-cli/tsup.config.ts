@@ -7,6 +7,7 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     splitting: false,
+    noExternal: ['prompts'],
     outDir: 'dist',
     external: ['@bonsaicss/core'],
     banner: {

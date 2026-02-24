@@ -20,6 +20,7 @@
     "playground": "pnpm --filter @bonsaicss/bonsailab dev",
     "playground:build": "pnpm --filter @bonsaicss/bonsailab build",
     "playground:preview": "pnpm --filter @bonsaicss/bonsailab preview",
+    "benchmark:core": "pnpm --filter @bonsaicss/core run benchmark",
     "prettier": "prettier --write --parser typescript '**/*.ts'",
     "format": "pnpm prettier",
     "changeset": "changeset",
@@ -27,17 +28,23 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^9.39.3",
     "@types/node": "^22.19.11",
-    "eslint": "^9.39.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.3",
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
-    "turbo": "^2.8.9",
+    "turbo": "^2.8.10",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^7.3.1",
     "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@bonsaicss/core": "link:packages/bonsaicss"
   }
 }

@@ -8,6 +8,9 @@ This package powers the BonsaiCSS ecosystem with:
 - content scanning and class detection
 - public custom extractors API
 - advanced reporting (JSON/HTML/CI)
+- framework-aware patterns: React, Vue, Svelte, Angular, Astro, Solid
+- server-template patterns: Blade (`@class`) and Rails ERB (`class_names`)
+- persistent scan cache at `node_modules/.cache/bonsaicss`
 
 ## Installation
 
@@ -43,34 +46,56 @@ Important behavior:
 ```ts
 import { bonsai, type BonsaiExtractor } from '@bonsaicss/core';
 
-const extractor: BonsaiExtractor = ({ source, filePath }) => {
-  const matches = Array.from(source.matchAll(/tw\("([^"]+)"\)/g));
+const liquidExtractor: BonsaiExtractor = {
+  name: 'liquid-classes',
+  test: /\.liquid$/,
+  extract: /class="([^"]+)"/g,
+};
 
-  return {
-    classes: matches.flatMap((m) =>
-      (m[1] ?? '').split(/\s+/).filter(Boolean).map((name) => ({
-        name,
-        line: 1,
-        type: 'literal',
-      })),
-    ),
-    dynamicPatterns: [/^btn-/],
-    warnings: filePath.endsWith('.legacy.ts') ? ['legacy extractor path in use'] : [],
-  };
+const tsExtractor: BonsaiExtractor = {
+  name: 'tw-call',
+  test: (filePath) => filePath.endsWith('.ts') || filePath.endsWith('.tsx'),
+  extract: ({ source, filePath }) => {
+    const matches = Array.from(source.matchAll(/tw\("([^"]+)"\)/g));
+    return {
+      classes: matches.flatMap((m) =>
+        (m[1] ?? '').split(/\s+/).filter(Boolean).map((name) => ({
+          name,
+          line: 1,
+          type: 'literal',
+        })),
+      ),
+      dynamicPatterns: [/^btn-/],
+      warnings: filePath.endsWith('.legacy.ts') ? ['legacy extractor path in use'] : [],
+    };
+  },
 };
 
 const result = bonsai({
-  content: ['./src/**/*.{ts,tsx,js,jsx}'],
+  content: ['./src/**/*.{liquid,ts,tsx,js,jsx}'],
   css: '.btn-primary{...}.unused{...}',
-  extractors: [extractor],
+  extractors: [liquidExtractor, tsExtractor],
 });
 ```
 
 Extractor contracts:
 
-- input: `ExtractorContext { filePath, source, cwd }`
+- `test` (opcional): `RegExp | (filePath) => boolean`
+- `extract`: `RegExp | (context) => ExtractorResult`
+- input do callback: `ExtractorContext { filePath, source, cwd }`
 - output: `ExtractorResult { classes?, dynamicPatterns?, warnings? }`
 - `classes` supports strings or objects (`ExtractorClassMatch`) with `line` and `type`
+
+## Migration (v0.1.x -> v0.2.0)
+
+### Behavior Changes
+
+- `extractors` is now exclusive.
+  If `options.extractors` is provided and non-empty, built-in scanning heuristics are skipped.
+- Persistent scan cache is enabled by default.
+  Cache file: `node_modules/.cache/bonsaicss/scan-cache-v1.json`.
+- Reporting schema now includes `reportVersion: 1`.
+  CI output also includes `report_version`, `size_after_kb`, `unused_css_percent`.
 
 ## Reporting
 
@@ -161,6 +186,31 @@ const pruned = pruneCss('.container{}.unused{}', scan, {
 const cssClasses = collectCssClassNames('.foo { color: red; } .bar { display: flex; }');
 ```
 
+## Performance Cache
+
+Built-in scanning uses:
+
+- in-memory cache per process
+- persistent cache per project at `node_modules/.cache/bonsaicss/scan-cache-v1.json`
+
+Cache invalidation uses file signature (`mtime`, `size`) and scanner mode (`keepDynamicPatterns`).
+
+## Benchmark
+
+Run the core benchmark:
+
+```bash
+pnpm --filter @bonsaicss/core run benchmark
+```
+
+Optional knobs:
+
+```bash
+node packages/bonsaicss/scripts/benchmark.mjs --files 500 --classes 4000 --iterations 8
+```
+
+Output includes cold vs warm phase (persistent cache impact), plus scan/prune timing averages.
+
 ## API Reference
 
 ### Main Functions
@@ -180,6 +230,8 @@ const cssClasses = collectCssClassNames('.foo { color: red; } .bar { display: fl
 - `BonsaiOptions`
 - `PrunerOptions`
 - `BonsaiExtractor`
+- `BonsaiExtractorDefinition`
+- `BonsaiExtractorCallback`
 - `ExtractorContext`
 - `ExtractorResult`
 - `ScanSummary`

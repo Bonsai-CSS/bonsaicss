@@ -2,11 +2,21 @@ import fs from 'fs';
 
 import type {
     BonsaiExtractor,
+    BonsaiExtractorCallback,
+    BonsaiExtractorDefinition,
     ExtractorClassMatch,
+    ExtractorContext,
     ExtractorResult,
+    ExtractorFileMatcher,
     PrunerOptions,
 } from './types.js';
-import { dedupeRegex, parsePatternEntries, tokenizeClassList } from './utils.js';
+import {
+    createLineResolver,
+    dedupeRegex,
+    normalizeSlashes,
+    parsePatternEntries,
+    tokenizeClassList,
+} from './utils.js';
 
 export interface ScanStringResult {
     classes: Set<string>;
@@ -25,10 +35,76 @@ interface CachedFileScan {
 
 const fileScanCache = new Map<string, CachedFileScan>();
 
+interface NormalizedExtractor {
+    readonly name: string;
+    readonly test?: ExtractorFileMatcher;
+    readonly extract: BonsaiExtractorCallback;
+}
+
 function getCustomExtractors(options: PrunerOptions | undefined): readonly BonsaiExtractor[] {
     const extractors = options?.extractors;
     if (!Array.isArray(extractors) || extractors.length === 0) return [];
     return extractors;
+}
+
+function toGlobalRegex(pattern: RegExp): RegExp {
+    if (pattern.flags.includes('g')) return new RegExp(pattern.source, pattern.flags);
+    return new RegExp(pattern.source, `${pattern.flags}g`);
+}
+
+function regexExtractor(pattern: RegExp): BonsaiExtractorCallback {
+    return ({ source }: ExtractorContext): ExtractorResult => {
+        const classes: ExtractorClassMatch[] = [];
+        const resolveLine = createLineResolver(source);
+        const re = toGlobalRegex(pattern);
+        let match = re.exec(source);
+        while (match) {
+            const captures =
+                match.length > 1
+                    ? match.slice(1).filter((entry): entry is string => typeof entry === 'string')
+                    : [match[0]];
+            const line = resolveLine(match.index);
+            captures.forEach(capture => {
+                tokenizeClassList(capture).forEach(name => {
+                    classes.push({ name, line, type: 'literal' });
+                });
+            });
+            if (match[0] === '') {
+                re.lastIndex += 1;
+            }
+            match = re.exec(source);
+        }
+        return { classes };
+    };
+}
+
+function normalizeExtractor(extractor: BonsaiExtractor, index: number): NormalizedExtractor {
+    if (typeof extractor === 'function') {
+        return {
+            name: `extractor:${String(index + 1)}`,
+            extract: extractor,
+        };
+    }
+
+    const definition = extractor;
+
+    return {
+        name: definition.name?.trim() || `extractor:${String(index + 1)}`,
+        test: definition.test,
+        extract:
+            definition.extract instanceof RegExp
+                ? regexExtractor(definition.extract)
+                : definition.extract,
+    };
+}
+
+function testPathMatcher(matcher: ExtractorFileMatcher | undefined, filePath: string): boolean {
+    if (!matcher) return true;
+    if (matcher instanceof RegExp) {
+        const flags = matcher.flags.replaceAll('g', '');
+        return new RegExp(matcher.source, flags).test(filePath);
+    }
+    return matcher(filePath);
 }
 
 function normalizeLine(line: number | undefined): number {
@@ -62,7 +138,7 @@ function applyExtractorResult(
             return;
         }
 
-        const match = entry as ExtractorClassMatch;
+        const match = entry;
         tokenizeClassList(match.name).forEach(token => {
             classes.add(token);
             if (!sourceLabel) return;
@@ -96,16 +172,26 @@ export function runCustomExtractors(
 
     const extractors = getCustomExtractors(options);
     const cwd = (options as { cwd?: string } | undefined)?.cwd ?? process.cwd();
-    const filePath = sourceLabel ?? '<inline>';
+    const filePath = normalizeSlashes(sourceLabel ?? '<inline>');
+    const context: ExtractorContext = {
+        filePath,
+        source: content,
+        cwd,
+    };
 
     extractors.forEach((extractor, index) => {
+        let normalized: NormalizedExtractor = {
+            name: `extractor:${String(index + 1)}`,
+            extract: () => undefined,
+        };
         let result: ExtractorResult | null | undefined;
         try {
-            result = extractor({
-                filePath,
-                source: content,
-                cwd,
-            });
+            normalized = normalizeExtractor(extractor, index);
+            if (!testPathMatcher(normalized.test, filePath)) {
+                return;
+            }
+
+            result = normalized.extract(context);
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             warnings.push(`[extractor:${String(index + 1)}] ${msg}`);
@@ -113,7 +199,9 @@ export function runCustomExtractors(
         }
 
         if (result?.warnings?.length) {
-            warnings.push(...result.warnings);
+            result.warnings.forEach(warning => {
+                warnings.push(`[${normalized.name}] ${warning}`);
+            });
         }
 
         applyExtractorResult(result, sourceLabel, classes, classOrigins, dynamicPatterns);
@@ -176,7 +264,7 @@ export function readCachedScan(
     if (!signature) return null;
 
     const cached = fileScanCache.get(file);
-    if (!cached || cached.signature !== signature) return null;
+    if (cached?.signature !== signature) return null;
 
     return hydrateCacheResult(cached);
 }

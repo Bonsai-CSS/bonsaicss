@@ -1,8 +1,16 @@
-import type { ParsedArgs } from './types.js';
+import path from 'path';
+
+import type { InitOptions, ParsedArgs } from './types.js';
 
 export function printHelp(): void {
     process.stdout.write(
-        `BonsaiCSS CLI\n\nUsage:\n  bonsaicss --content <glob> --css <file.css> [options]\n\nRequired:\n  --content, -c <glob>          Content glob pattern (repeatable)\n  --css, -i <file.css>          CSS file path (repeatable)\n\nOptions:\n  --config <file.json>          Load JSON config file\n  --out, -o <file.css>          Write pruned CSS to file (defaults to stdout)\n  --cwd <path>                  Base directory to resolve globs/files\n  --safelist <a,b,c>            Keep exact classes (CSV or repeatable)\n  --safelist-pattern <regex>    Keep classes by regex pattern (repeatable)\n  --keep-dynamic-patterns       Infer dynamic class patterns\n  --dynamic-pattern <regex>     Extra dynamic patterns (repeatable)\n  --minify                      Emit minified CSS output\n  --analyze [file.json]         Emit legacy class-origin report\n  --report-json [file.json]     Emit advanced JSON report\n  --report-html [file.html]     Emit HTML report\n  --report-ci [file.txt]        Emit compact CI stats\n  --verbose                     Print detailed run summary\n  --stats                       Print machine-readable stats JSON\n  --watch                       Watch files and re-run on changes\n  --help, -h                    Show this help\n`,
+        `BonsaiCSS CLI\n\nUsage:\n  bonsaicss --content <glob> --css <file.css> [options]\n  bonsaicss init [options]\n\nRequired:\n  --content, -c <glob>          Content glob pattern (repeatable)\n  --css, -i <file.css>          CSS file path (repeatable)\n\nOptions:\n  --config <file>               Load config file (.json/.js/.cjs/.mjs/.ts)\n  --out, -o <file.css>          Write pruned CSS to file (defaults to stdout)\n  --cwd <path>                  Base directory to resolve globs/files\n  --safelist <a,b,c>            Keep exact classes (CSV or repeatable)\n  --safelist-pattern <regex>    Keep classes by regex pattern (repeatable)\n  --keep-dynamic-patterns       Infer dynamic class patterns\n  --dynamic-pattern <regex>     Extra dynamic patterns (repeatable)\n  --minify                      Emit minified CSS output\n  --analyze [file.json]         Emit legacy class-origin report\n  --report-json [file.json]     Emit advanced JSON report\n  --report-html [file.html]     Emit HTML report\n  --report-ci [file.txt]        Emit compact CI stats\n  --ci                          Enable CI gatekeeper mode\n  --max-unused-percent <n>      Fail if removed-rules ratio exceeds n (0-100)\n  --max-final-kb <n>            Fail if final CSS size exceeds n KB\n  --verbose                     Print detailed run summary\n  --stats                       Print machine-readable stats JSON\n  --watch                       Watch files and re-run on changes\n  --help, -h                    Show this help\n\nInit Options:\n  --cwd <path>                  Directory where config file will be generated\n  --config <file>               Target config path (default: bonsai.config.ts)\n  --framework <name>            Force framework (react/vue/svelte/angular/astro/solid/vanilla)\n  --force                       Overwrite existing config file\n  --yes                         Non-interactive mode\n`,
+    );
+}
+
+export function printInitHelp(): void {
+    process.stdout.write(
+        `BonsaiCSS Init\n\nUsage:\n  bonsaicss init [options]\n\nOptions:\n  --cwd <path>                  Directory where config file will be generated\n  --config <file>               Target config path (default: bonsai.config.ts)\n  --framework <name>            Force framework (react/vue/svelte/angular/astro/solid/vanilla)\n  --force                       Overwrite existing config file\n  --yes                         Non-interactive mode\n  --help, -h                    Show this help\n`,
     );
 }
 
@@ -89,6 +97,29 @@ export function parseArgs(argv: string[]): ParsedArgs {
                 parsed.dynamicPatterns.push(next);
                 i += 1;
                 break;
+            case '--ci':
+                parsed.ci = true;
+                break;
+            case '--max-unused-percent':
+                if (!next || next.startsWith('-')) {
+                    throw new Error('Missing value for --max-unused-percent');
+                }
+                parsed.maxUnusedPercent = Number(next);
+                if (Number.isNaN(parsed.maxUnusedPercent)) {
+                    throw new Error('Invalid number for --max-unused-percent');
+                }
+                i += 1;
+                break;
+            case '--max-final-kb':
+                if (!next || next.startsWith('-')) {
+                    throw new Error('Missing value for --max-final-kb');
+                }
+                parsed.maxFinalKb = Number(next);
+                if (Number.isNaN(parsed.maxFinalKb)) {
+                    throw new Error('Invalid number for --max-final-kb');
+                }
+                i += 1;
+                break;
             case '--minify':
                 parsed.minify = true;
                 break;
@@ -127,6 +158,50 @@ export function parseArgs(argv: string[]): ParsedArgs {
                 break;
             default:
                 throw new Error(`Unknown option: ${arg}`);
+        }
+    }
+
+    return parsed;
+}
+
+export function parseInitArgs(argv: string[]): InitOptions & { help?: boolean } {
+    const parsed: InitOptions & { help?: boolean } = {
+        cwd: process.cwd(),
+        force: false,
+    };
+
+    for (let i = 0; i < argv.length; i += 1) {
+        const arg = argv[i] ?? '';
+        const next = argv[i + 1];
+
+        switch (arg) {
+            case '--help':
+            case '-h':
+                parsed.help = true;
+                break;
+            case '--cwd':
+                if (!next || next.startsWith('-')) throw new Error('Missing value for --cwd');
+                parsed.cwd = path.resolve(next);
+                i += 1;
+                break;
+            case '--config':
+                if (!next || next.startsWith('-')) throw new Error('Missing value for --config');
+                parsed.configPath = next;
+                i += 1;
+                break;
+            case '--framework':
+                if (!next || next.startsWith('-')) throw new Error('Missing value for --framework');
+                parsed.framework = next;
+                i += 1;
+                break;
+            case '--force':
+                parsed.force = true;
+                break;
+            case '--yes':
+                parsed.yes = true;
+                break;
+            default:
+                throw new Error(`Unknown option for init: ${arg}`);
         }
     }
 

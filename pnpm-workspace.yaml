@@ -3,3 +3,6 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+
+overrides:
+  '@bonsaicss/core': link:packages/bonsaicss

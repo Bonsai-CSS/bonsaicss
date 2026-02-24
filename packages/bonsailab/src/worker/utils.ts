@@ -6,6 +6,8 @@ const frameworkFileHints: Record<Framework, RegExp[]> = {
     vue: [/\.vue$/i, /\.(js|ts)$/i],
     svelte: [/\.svelte$/i, /\.(js|ts)$/i],
     angular: [/\.(html|component\.ts|directive\.ts|service\.ts|js|ts)$/i],
+    astro: [/\.astro$/i, /\.(js|ts|jsx|tsx|vue|svelte)$/i],
+    solid: [/\.(tsx|jsx|js|ts|html)$/i],
 };
 
 export function now(): number {

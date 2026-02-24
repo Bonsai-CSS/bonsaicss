@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "BonsaiCSS — An AST-first CSS pruner 🌳",
   "repository": {
     "type": "git",
@@ -28,7 +28,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "benchmark": "pnpm run build && node scripts/benchmark.mjs"
   },
   "dependencies": {
     "css-tree": "^3.1.0"

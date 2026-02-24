@@ -1,6 +1,6 @@
 {
   "name": "@bonsaicss/bonsailab",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Bonsai-CSS/bonsaicss.git",
@@ -22,9 +22,9 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.4",
-    "vite": "^7.2.0"
+    "vite": "^7.3.1"
   }
 }

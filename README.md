@@ -17,6 +17,7 @@ Trim your CSS like a bonsai tree 🌳
 <p align="center">
   <a href="#packages">Packages</a> •
   <a href="#quick-start">Quick Start</a> •
+  <a href="#migration-v020">Migration</a> •
   <a href="#how-it-works">How It Works</a> •
   <a href="#options">Options</a> •
   <a href="#contributing">Contributing</a>
@@ -71,6 +72,11 @@ export default {
 
 That's it. Unused CSS rules are stripped automatically during the build.
 
+## Migration (v0.2.0)
+
+- Core migration details: `packages/bonsaicss/README.md` (`Migration (v0.1.x -> v0.2.0)`).
+- CLI migration details + full `bonsai.config.ts` example: `packages/bonsaicss-cli/README.md`.
+
 ## How It Works
 
 BonsaiCSS works in three phases:
@@ -86,7 +92,7 @@ BonsaiCSS works in three phases:
 └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-1. **Scan** — Reads your HTML, JSX, Vue, Svelte, and Angular templates to find every class name in use. Also detects dynamic patterns like template literals (`bg-${color}`) and `classList.add()`.
+1. **Scan** — Reads HTML, JSX/TSX, Vue, Svelte, Angular, Astro and Solid templates to find every class name in use. Also detects dynamic patterns like template literals (`bg-${color}`), `classList.add()`, Blade `@class(...)`, and Rails `class_names(...)`.
 
 2. **Compare** — Collects all class selectors from your CSS and checks them against the scanned set.
 
@@ -132,6 +138,9 @@ BonsaiCSS scans and extracts class names from:
 - **Vue** — `:class` bindings and object/array syntax
 - **Svelte** — `class:name={condition}` directives
 - **Angular** — `[class.name]="condition"` bindings
+- **Astro** — `class:list` bindings
+- **SolidJS** — `classList={...}` object syntax
+- **Server templates** — Blade `@class(...)`, ERB `class_names(...)`
 - **JavaScript / TypeScript** — `classList.add()`, `classList.toggle()`, `clsx()`, `classnames()`, `cn()`
 
 ## Programmatic API
@@ -187,26 +196,36 @@ Then open the Vite URL shown in terminal (usually `http://localhost:5173`) to us
 - Worker-based pruning (main thread stays responsive)
 - Monaco editors for content + CSS
 - Safe/Aggressive mode
-- Framework-aware presets (Vanilla, React, Vue, Svelte, Angular)
+- Framework-aware presets (Vanilla, React, Vue, Svelte, Angular, Astro, Solid)
 - CSS before/after + diff + detected/removed classes + metrics
+
+## Benchmark
+
+Run the core benchmark (cold vs warm cache):
+
+```bash
+npm run benchmark:core
+```
 
 ## Development
 
-This project uses **npm workspaces**. From the root:
+This project uses **pnpm workspaces**. From the root:
 
 ```bash
 # Install all dependencies
-npm install
+pnpm install
 
 # Build all packages (core first, then plugins)
-npm run build
+pnpm build
 
 # Run tests
-npm test
+pnpm test
 
 # Type-check
-npm run typecheck
+pnpm typecheck
 ```
+
+> **Note:** Always use `pnpm` to install dependencies and run scripts in this monorepo.
 
 ## Contributing
 

@@ -76,4 +76,31 @@ const variant = 'primary';
         },
         css: baseCss,
     },
+    astro: {
+        files: {
+            'src/pages/index.astro': `---
+const variant = 'primary';
+const isActive = true;
+---
+<main class:list={["card", isActive && "card--active"]}>
+  <button class:list={["btn", "btn-" + variant]}>Run</button>
+  <a class="nav-link">Docs</a>
+</main>`,
+        },
+        css: baseCss,
+    },
+    solid: {
+        files: {
+            'App.tsx': `export default function App() {
+  const isPrimary = true;
+  return (
+    <main class="card">
+      <button classList={{ btn: true, "btn-primary": isPrimary }}>Run</button>
+      <a class="nav-link">Docs</a>
+    </main>
+  );
+}`,
+        },
+        css: baseCss,
+    },
 };

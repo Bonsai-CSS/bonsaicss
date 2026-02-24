@@ -8,6 +8,9 @@
  */
 export type {
     BonsaiExtractor,
+    BonsaiExtractorCallback,
+    BonsaiExtractorDefinition,
+    ExtractorFileMatcher,
     ExtractorContext,
     ExtractorResult,
     ExtractorClassMatch,

@@ -7,7 +7,7 @@ BonsaiLab is the official playground for BonsaiCSS.
 - AST-first pruning execution in a dedicated Web Worker
 - Monaco editors for content and CSS
 - Safe / Aggressive mode toggles
-- Framework-aware presets: Vanilla, React, Vue, Svelte, Angular
+- Framework-aware presets: Vanilla, React, Vue, Svelte, Angular, Astro, Solid
 - Class inspector, removed classes, warnings, metrics, and CSS diff viewer
 
 ## Run
